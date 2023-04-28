@@ -19,113 +19,68 @@ public class DBConnection {
         }
     }
 
-    public static ArrayList<Book> getBooks(){
-        ArrayList<Book> books = new ArrayList<>();
+    public static ArrayList<Items> getItems(){
+        ArrayList<Items> items = new ArrayList<>();
         try {
-            PreparedStatement statement = connection.prepareStatement("select * from tech_orda_db.books");
+            PreparedStatement statement = connection.prepareStatement("select * from tech_orda_db.items");
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()){
-                Book book = new Book();
-                book.setName(resultSet.getString("name"));
-                book.setId(resultSet.getInt("id"));
-                book.setGenre(resultSet.getString("genre"));
-                book.setAuthor(resultSet.getString("author"));
-                book.setDescription(resultSet.getString("description"));
-                book.setPrice(resultSet.getDouble("price"));
-                books.add(book);
+                Items item = new Items();
+                item.setId(resultSet.getInt("id"));
+                item.setName(resultSet.getString("name"));
+                item.setRam(resultSet.getString("ram"));
+                item.setMemory(resultSet.getString("memory"));
+                item.setOs(resultSet.getString("os"));
+                item.setPrice(resultSet.getDouble("price"));
+                items.add(item);
             }
             statement.close();
         }catch (Exception e){
             e.printStackTrace();
         }
-        return books;
+        return items;
     }
 
-    public static void addBook(Book book){
+    public static Items getItem(int id){
+        Items item = null;
         try {
             PreparedStatement statement = connection.prepareStatement("" +
-                    "INSERT INTO tech_orda_db.books (name, price, author, genre, description) " +
-                    "VALUES (?, ?, ?, ?, ?)");
-            statement.setString(1, book.getName());
-            statement.setDouble(2, book.getPrice());
-            statement.setString(3, book.getAuthor());
-            statement.setString(4, book.getGenre());
-            statement.setString(5, book.getDescription());
-            statement.executeUpdate();
-            statement.close();
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public static Book getBook(int id){
-        Book book = null;
-        try {
-            PreparedStatement statement = connection.prepareStatement("" +
-                    "select * from tech_orda_db.books where id = ?");
+                    "select * from tech_orda_db.items where id = ?");
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()){
-                book = new Book();
-                book.setName(resultSet.getString("name"));
-                book.setId(resultSet.getInt("id"));
-                book.setGenre(resultSet.getString("genre"));
-                book.setAuthor(resultSet.getString("author"));
-                book.setDescription(resultSet.getString("description"));
-                book.setPrice(resultSet.getDouble("price"));
+                item = new Items();
+                item.setId(resultSet.getInt("id"));
+                item.setName(resultSet.getString("name"));
+                item.setRam(resultSet.getString("ram"));
+                item.setMemory(resultSet.getString("memory"));
+                item.setOs(resultSet.getString("os"));
+                item.setPrice(resultSet.getDouble("price"));
             }
             statement.close();
 
         }catch (Exception e){
             e.printStackTrace();
         }
-        return book;
+        return item;
     }
 
-    public static void updateBook(Book book){
+    public static boolean isUserExist(String email, String password) {
         try {
-            PreparedStatement statement = connection.prepareStatement("" +
-                    "update tech_orda_db.books " +
-                    "SET " +
-                    "name = ?, " +
-                    "price = ?, " +
-                    "genre = ?, "+
-                    "description = ?, " +
-                    "author = ? " +
-                    "where id = ?");
-
-            statement.setString(1, book.getName());
-            statement.setDouble(2, book.getPrice());
-            statement.setString(3, book.getGenre());
-            statement.setString(4, book.getDescription());
-            statement.setString(5, book.getAuthor());
-            statement.setInt(6, book.getId());
-
-            statement.executeUpdate();
-
-            statement.close();
-
-        }catch (Exception e){
+            PreparedStatement statement = connection.prepareStatement(
+                    "SELECT * FROM tech_orda_db.users WHERE email = ? AND password = ?");
+            statement.setString(1, email);
+            statement.setString(2, password);
+            ResultSet resultSet = statement.executeQuery();
+            boolean userExists = resultSet.next();
+            statement.close(); // закрытие statement
+            return userExists;
+        } catch (Exception e) {
             e.printStackTrace();
         }
+        return true;
     }
 
-    public static void deleteBook(int id){
-        try {
-            PreparedStatement statement = connection.prepareStatement("" +
-                    "DELETE from tech_orda_db.books where id = ?");
-
-            statement.setInt(1, id);
-
-            statement.executeUpdate();
-
-            statement.close();
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 }
 
 
